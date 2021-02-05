@@ -17,10 +17,10 @@ app.use(bodyParser.json());
 // Going to connect to MySQL database
 const mysql = require('mysql');
 
-const HOST = process.env.HOST ? process.env.HOST : "database-server-mariadb.default.svc.cluster.local";
-const USER = process.env.USER ? process.env.USER : "";
-const PASSWORD = process.env.PASSWORD ? process.env.PASSWORD : "";
-const DATABASE = process.env.DATABASE ? process.env.DATABASE : "events_db";
+const HOST = process.env.DBHOST ? process.env.DBHOST : "database-server-mariadb.default.svc.cluster.local";
+const USER = process.env.DBUSER ? process.env.DBUSER : "";
+const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "";
+const DATABASE = process.env.DBDATABASE ? process.env.DBDATABASE : "events_db";
 
 const connection = mysql.createConnection({
     host: HOST,
@@ -46,7 +46,7 @@ app.get('/', (req, res) => {
 
 // version endpoint to provide easy convient method to demonstrating tests pass/fail
 app.get('/version', (req, res) => {
-    res.json({ version: '1.0.1' });
+    res.json({ version: '1.0.2' });
 });
 
 
@@ -54,37 +54,28 @@ app.get('/version', (req, res) => {
 // if you went on to develop this as a real application.
 app.get('/events', (req, res) => {
     const sql = 'SELECT id, title, event_time, description, location, likes FROM events;'
-    connection.connect(function (err) {
+    connection.query(sql, function (err, result, fields) {
+        // if any error while executing above query, throw error
         if (err) {
-            console.error("Database Unavailable")
+            console.error("err")
             res.json(mockEvents);
         }
         else {
-            // if connection is successful
-            connection.query(sql, function (err, result, fields) {
-                // if any error while executing above query, throw error
-                if (err){
-                    console.error("err")
-                    res.json(mockEvents);
+            // if there is no error, you have the result
+            // iterate for all the rows in result
+            Object.keys(result).forEach(function (key) {
+                const row = result[key];
+                const ev = {
+                    title: row.title,
+                    event_time: row.event_time,
+                    description: row.description,
+                    location: row.location,
+                    id: row.id,
+                    likes: row.likes
                 }
-                else{
-                // if there is no error, you have the result
-                // iterate for all the rows in result
-                Object.keys(result).forEach(function (key) {
-                    const row = result[key];
-                    const ev = {
-                        title: row.title,
-                        event_time: row.event_time,
-                        description: row.description,
-                        location: row.location,
-                        id: row.id,
-                        likes: row.likes
-                    }
-                    dbEvents.events.push(ev);      
-                });
-                res.json(dbEvents);
-                }         
+                dbEvents.events.push(ev);
             });
+            res.json(dbEvents);
         }
     });
 });
