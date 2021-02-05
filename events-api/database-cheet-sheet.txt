@@ -1,0 +1,54 @@
+# Install MariaDB with Helm
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm install database-server bitnami/mariadb
+
+Services:
+
+  echo Primary: database-server-mariadb.default.svc.cluster.local:3306
+
+Administrator credentials:
+
+  Username: root
+  Password : echo $(kubectl get secret --namespace default database-server-mariadb -o jsonpath="{.data.mariadb-root-password}" | base64 --decode)
+
+To connect to your database:
+
+  1. Run a pod that you can use as a client:
+
+      kubectl run database-server-mariadb-client --rm --tty -i --restart='Never' --image  docker.io/bitnami/mariadb:10.5.8-debian-10-r46 --namespace default --command -- bash
+
+  2. To connect to primary service (read/write):
+
+      mysql -h database-server-mariadb.default.svc.cluster.local -u root -p events_db
+
+To upgrade this helm chart:
+
+  1. Obtain the password as described on the 'Administrator credentials' section and set the 'auth.rootPassword' parameter as shown below:
+
+      ROOT_PASSWORD=$(kubectl get secret --namespace default database-server-mariadb -o jsonpath="{.data.mariadb-root-password}" | base64 --decode)
+      helm upgrade database-server bitnami/mariadb --set auth.rootPassword=$ROOT_PASSWORD
+
+create database events_db;
+
+use events_db;
+
+create table events(
+   id INT NOT NULL AUTO_INCREMENT,
+   title VARCHAR(255) NOT NULL,
+   event_time VARCHAR(100) NOT NULL,
+   description TEXT NOT NULL,
+   location VARCHAR(255) NOT NULL,
+   likes INT DEFAULT 0,
+   datetime_added TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   PRIMARY KEY ( id )
+);
+
+SHOW TABLES;
+
+
+INSERT INTO events (title, event_time, description, location) VALUES ('Pet Show', 'June 6 at Noon', 'Super-fun with furry friends!', 'Reston Dog Park');
+
+INSERT INTO events (title, event_time, description, location) VALUES ('Company Picnic', '4th of July', 'Come for free food and drinks. ', 'At the lake');
+
+
+SELECT * FROM events;

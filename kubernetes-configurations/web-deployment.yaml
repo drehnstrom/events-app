@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: events-web
+  name: events-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: events-web
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: events-web
+    spec:
+      containers:
+      - image: drehnstrom/events-web:v1.0
+        name: events-web
+        imagePullPolicy: "Always"
+        env:
+        - name: SERVER
+          value: "http://events-api"
+        resources: {}
+status: {}

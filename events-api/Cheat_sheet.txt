@@ -1,0 +1,28 @@
+
+# build locally
+docker build -t drehnstrom/events-api:v1.0 .
+
+# Run Docker image to test
+docker run --name events-api -d -p 8082:8082 drehnstrom/events-api:v1.0
+
+# Stop the Container
+docker stop events-api
+
+# Push the Container
+docker push drehnstrom/events-api:v1.0
+
+# Deploy to cluster
+kubectl create deployment events-api --image=drehnstrom/events-api:v1.0
+
+# Delete deployment
+kubectl delete deployments/events-api
+
+# Create Service
+kubectl expose deployments/events-api --port=80 --target-port=8082 --type=LoadBalancer
+
+# Delete Service
+kubectl delete services/events-internal
+
+
+
+5yaktNJIgr

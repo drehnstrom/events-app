@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: events-api
+  name: events-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: events-api
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: events-api
+    spec:
+      containers:
+      - image: drehnstrom/events-api:v1.0
+        name: events-api
+        imagePullPolicy: "Always"
+        env:
+        - name: HOST
+          value: "database-server-mariadb.default.svc.cluster.local"
+        - name: USER
+          value: "root"
+        - name: PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-server-mariadb
+              key: mariadb-root-password
+        - name: DATABASE
+          value: "events_db"  
+        resources: {}
+status: {}

@@ -1,0 +1,28 @@
+
+# build locally
+docker build -t drehnstrom/events-web:v1.0 .
+
+# Run Docker image to test
+docker run --name events-web -d -p 8080:8080 drehnstrom/events-web:v1.0
+
+# Stop the Container
+docker stop events-web
+
+# Push the Container
+docker push drehnstrom/events-web:v1.0
+
+# Deploy to cluster
+kubectl create deployment events-web --image=drehnstrom/events-web:v1.0
+
+# Delete deployment
+kubectl delete deployments/events-web
+
+# Create Service
+kubectl expose deployments/events-web --port=80 --target-port=8082 --type=LoadBalancer
+
+# Delete Service
+kubectl delete services/events-internal
+
+
+
+5yaktNJIgr

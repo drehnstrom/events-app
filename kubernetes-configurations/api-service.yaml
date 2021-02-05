@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: events-api
+  name: events-api
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8082
+  selector:
+    app: events-api
+  type: LoadBalancer
+status:
+  loadBalancer: {}
