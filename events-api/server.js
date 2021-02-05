@@ -57,12 +57,14 @@ app.get('/events', (req, res) => {
     connection.query(sql, function (err, result, fields) {
         // if any error while executing above query, throw error
         if (err) {
-            console.error("err")
+            console.error(err.message);
+            //connection.end();
             res.json(mockEvents);
         }
         else {
             // if there is no error, you have the result
             // iterate for all the rows in result
+            dbEvents.events = [];
             Object.keys(result).forEach(function (key) {
                 const row = result[key];
                 const ev = {
@@ -72,9 +74,10 @@ app.get('/events', (req, res) => {
                     location: row.location,
                     id: row.id,
                     likes: row.likes
-                }
+                };
                 dbEvents.events.push(ev);
             });
+            //connection.end();
             res.json(dbEvents);
         }
     });
@@ -83,7 +86,7 @@ app.get('/events', (req, res) => {
 // Adds an event - in a real solution, this would insert into a cloud datastore.
 // Currently this simply adds an event to the mock array in memory
 // this will produce unexpected behavior in a stateless kubernetes cluster. 
-app.post('/event', (req, res) => {
+app.post('/events', (req, res) => {
     // create a new object from the json data and add an id
     const ev = {
         title: req.body.title,
@@ -93,11 +96,21 @@ app.post('/event', (req, res) => {
         id: mockEvents.events.length + 1,
         likes: 0
     }
-    // add to the mock array
-    mockEvents.events.push(ev);
-    // return the complete array
-    res.json(mockEvents);
+    const sql = 'INSERT INTO events (title, event_time, description, location) VALUES (?,?,?,?);';
+    const values = [ev.title, ev.event_time, ev.description, ev.location];
+    connection.query(sql, values, (err, results, fields) => {
+        if (err) {
+            console.error(err.message);
+            mockEvents.events.push(ev);
+            res.json(ev.id);
+        }
+        // get inserted id
+        console.log('Added Event Id:' + results.insertId);
+      });  
+      //connection.end();
+      res.json(results.insertId);
 });
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

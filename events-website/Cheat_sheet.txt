@@ -1,5 +1,5 @@
 
-# build locally
+# build Docker Image
 docker build -t drehnstrom/events-web:v1.0 .
 
 # Run Docker image to test

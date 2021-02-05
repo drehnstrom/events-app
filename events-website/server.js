@@ -80,7 +80,7 @@ app.get('/', (req, res) => {
 
 
 // defines a route that receives the post request to /event
-app.post('/event',
+app.post('/events',
     urlencodedParser, // second argument - how to parse the uploaded content
     // into req.body
     (req, res) => {
@@ -91,7 +91,7 @@ app.post('/event',
         //  "start": "SERVER=http://localhost:8082 node server.js",
         request.post(  // first argument: url + data + formats
             {
-                url: SERVER + '/event',  // the microservice end point for adding an event
+                url: SERVER + '/events',  // the microservice end point for adding an event
                 body: req.body,  // content of the form
                 headers: { // uploading json
                     "Content-Type": "application/json"
