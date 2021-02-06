@@ -8,6 +8,7 @@ const express = require('express');
 // https://www.npmjs.com/package/body-parser
 const bodyParser = require('body-parser');
 
+
 // create the server
 const app = express();
 
@@ -17,9 +18,9 @@ app.use(bodyParser.json());
 // Going to connect to MySQL database
 const mysql = require('mysql');
 
-const HOST = process.env.DBHOST ? process.env.DBHOST : "database-server-mariadb.default.svc.cluster.local";
-const USER = process.env.DBUSER ? process.env.DBUSER : "";
-const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "";
+const HOST = process.env.DBHOST ? process.env.DBHOST : "127.0.0.1";
+const USER = process.env.DBUSER ? process.env.DBUSER : "root";
+const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "Letmein!";
 const DATABASE = process.env.DBDATABASE ? process.env.DBDATABASE : "events_db";
 
 const connection = mysql.createConnection({
@@ -32,8 +33,8 @@ const connection = mysql.createConnection({
 // mock events data - Once deployed the data will come from database
 const mockEvents = {
     events: [
-        { id: 1, title: 'Mock Pet Show', event_time: 'June 6 at Noon', description: 'Super-fun with furry friends!', location: 'Reston Dog Park', likes: 0 },
-        { id: 2, title: 'Mock Company Picnic', event_time: '4th of July', description: 'Come for free food and drinks.', location: 'At the lake', likes: 0 },
+        { id: 1, title: 'Mock Pet Show', event_time: 'June 6 at Noon', description: 'Super-fun with furry friends!', location: 'Reston Dog Park', likes: 0, datetime_added: '2021-02-01:12:00' },
+        { id: 2, title: 'Mock Company Picnic', event_time: '4th of July', description: 'Come for free food and drinks.', location: 'At the lake', likes: 0, datetime_added: '2021-02-01:12:00' },
     ]
 };
 
@@ -53,7 +54,7 @@ app.get('/version', (req, res) => {
 // mock events endpoint. this would be replaced by a call to a datastore
 // if you went on to develop this as a real application.
 app.get('/events', (req, res) => {
-    const sql = 'SELECT id, title, event_time, description, location, likes FROM events;'
+    const sql = 'SELECT id, title, event_time, description, location, likes, datetime_added FROM events;'
     connection.query(sql, function (err, result, fields) {
         // if any error while executing above query, throw error
         if (err) {
@@ -73,7 +74,8 @@ app.get('/events', (req, res) => {
                     description: row.description,
                     location: row.location,
                     id: row.id,
-                    likes: row.likes
+                    likes: row.likes,
+                    datetime_added: row.datetime_added
                 };
                 dbEvents.events.push(ev);
             });
@@ -88,13 +90,15 @@ app.get('/events', (req, res) => {
 // this will produce unexpected behavior in a stateless kubernetes cluster. 
 app.post('/events', (req, res) => {
     // create a new object from the json data and add an id
+    const now = new Date().toUTCString();
     const ev = {
         title: req.body.title,
         event_time: req.body.event_time,
         description: req.body.description,
         location: req.body.location,
         id: mockEvents.events.length + 1,
-        likes: 0
+        likes: 0,
+        datetime_added: now
     }
     const sql = 'INSERT INTO events (title, event_time, description, location) VALUES (?,?,?,?);';
     const values = [ev.title, ev.event_time, ev.description, ev.location];
@@ -102,14 +106,17 @@ app.post('/events', (req, res) => {
         if (err) {
             console.error(err.message);
             mockEvents.events.push(ev);
+            console.log("Here " + now)
             res.json(ev.id);
         }
-        // get inserted id
-        console.log('Added Event Id:' + results.insertId);
-      });  
-      //connection.end();
-      res.json(results.insertId);
-});
+        else {
+            // get inserted id
+            console.log('Added Event Id:' + results.insertId);
+            res.json(results.insertId);
+        }
+    });
+}
+);
 
 
 app.use((err, req, res, next) => {

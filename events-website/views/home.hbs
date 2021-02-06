@@ -1,11 +1,13 @@
-<ul >
+<ul>
   {{#events}}
-    <li>
-        <h2>{{ title }}</h2>
-        <div>What: {{ description }}</div>
-        <div>When: {{ event_time }}</div>
-        <div>Where: {{ location }}</div>
-        <div>Likes: {{ likes }}</div>
-    </li>
+  <hr />
+  <div class="container">
+    <h2>{{ title }}</h2>
+    <div class="h4">{{ description }}</div>
+    <div>When: {{ event_time }}</div>
+    <div>Where: {{ location }}</div>
+    <div><a href="#?{{ id }}">Likes</a> {{ likes }} </div>
+    <small class="text-muted">{{ datetime_added }}</small>
+  </div>
   {{/events}}
 </ul>

@@ -10,4 +10,4 @@ docker build -t drehnstrom/events-web:v1.0 ../events-website
 docker push drehnstrom/events-web:v1.0
 
 # Apply Kubernetes configuration
-
+kubectl apply -f ../kubernetes-configurations/
