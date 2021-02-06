@@ -8,7 +8,6 @@ const express = require('express');
 // https://www.npmjs.com/package/body-parser
 const bodyParser = require('body-parser');
 
-
 // create the server
 const app = express();
 
@@ -50,16 +49,12 @@ app.get('/version', (req, res) => {
     res.json({ version: '1.0.2' });
 });
 
-
-// mock events endpoint. this would be replaced by a call to a datastore
-// if you went on to develop this as a real application.
 app.get('/events', (req, res) => {
     const sql = 'SELECT id, title, event_time, description, location, likes, datetime_added FROM events;'
     connection.query(sql, function (err, result, fields) {
         // if any error while executing above query, throw error
         if (err) {
             console.error(err.message);
-            //connection.end();
             res.json(mockEvents);
         }
         else {
@@ -79,15 +74,11 @@ app.get('/events', (req, res) => {
                 };
                 dbEvents.events.push(ev);
             });
-            //connection.end();
             res.json(dbEvents);
         }
     });
 });
 
-// Adds an event - in a real solution, this would insert into a cloud datastore.
-// Currently this simply adds an event to the mock array in memory
-// this will produce unexpected behavior in a stateless kubernetes cluster. 
 app.post('/events', (req, res) => {
     // create a new object from the json data and add an id
     const now = new Date().toUTCString();
@@ -118,6 +109,31 @@ app.post('/events', (req, res) => {
 }
 );
 
+
+app.get('/events/:id', (req, res) => {
+    const values = [req.params.id];
+    const get_likes_sql = `SELECT likes from events WHERE id = ?;`
+    const update_sql = `UPDATE events SET likes = ? WHERE id = ?`;
+    const get_event_sql = `SELECT id, title, event_time, description, location, likes, datetime_added FROM events WHERE id = ?;`;
+
+    if (req.query.action == 'like') {
+        connection.query(get_likes_sql, values, function (err, result, fields) {
+            const new_likes = result[0].likes + 1;
+            connection.query(update_sql, [new_likes, req.params.id], function (err, result, fields) {
+                connection.query(get_event_sql, values, function (err, result, fields) {
+                    result.length ? res.status(200).json(result[0])
+                        : res.status(404).send("Not Found");
+                });
+            });
+        });
+    }
+    else{
+        connection.query(get_event_sql, values, function (err, result, fields) {
+            result.length ? res.status(200).json(result[0])
+                : res.status(404).send("Not Found");
+        });
+    }
+});
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
