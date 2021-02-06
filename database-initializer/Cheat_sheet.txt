@@ -1,0 +1,12 @@
+# build locally
+docker build -t drehnstrom/events-job:v1.0 .
+
+# Run Docker image to test
+docker run --name events-api -d drehnstrom/events-job:v1.0
+
+# Stop the Container
+docker stop events-job
+
+# Push the Container
+docker push drehnstrom/events-job:v1.0
+
