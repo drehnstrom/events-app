@@ -10,7 +10,7 @@ docker build -t drehnstrom/events-web:v1.0 ../events-website
 docker push drehnstrom/events-web:v1.0
 
 # Recreate Website Docker Containers
-docker build -t drehnstrom/events-job:v1.0 ./database-initializer
+docker build -t drehnstrom/events-job:v1.0 ../database-initializer
 docker push drehnstrom/events-job:v1.0
 
 # Apply Kubernetes configuration
