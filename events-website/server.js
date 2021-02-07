@@ -111,6 +111,33 @@ app.post('/events',
 
 // create other get and post methods here - version, login,  etc
 
+app.get('/like/:id', (req, res) => {
+    const id = req.params.id;
+    request.get(  // first argument: url + return format
+        {
+            url: SERVER + '/events/' + id + '?action=like',  // the microservice end point for events
+            json: true  // response from server will be json format
+        }, // second argument: function with three args,
+        // runs when server response received
+        // body hold the return from the server
+        (error, response, body) => {
+            if (error) {
+                console.log('error:', error); // Print the error if one occurred
+                res.render('error_message',
+                    {
+                        layout: 'default',  //the outer html page
+                        error: error // pass the data from the server to the template
+                    });
+            }
+            else {
+                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+                console.log(body); // print the return from the server microservice
+                res.json(body); // pass the data from the server to the template
+            }
+        }
+    );
+});
+
 
 
 
