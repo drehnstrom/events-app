@@ -68,7 +68,7 @@ let tries = 0;
 let succeeded = false;
 let sleep_time = 1;
 async function start() {
-    while (!succeeded && tries < 3) {
+    while (!succeeded && tries < 10) {
         tries++;
         console.log(sleep_time);
         await sleep(sleep_time * 1000);
