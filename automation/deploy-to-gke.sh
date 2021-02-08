@@ -30,8 +30,8 @@ echo "Deploying application..."
 kubectl apply -f ../kubernetes-configurations/
 
 # Give the app a chance to start to deploy
-echo "Will sleep for a minute to let the application start..."
-sleep 1m
+echo "Will sleep for a couple minutes to let the application start..."
+sleep 2m
 
 kubectl get services
 
