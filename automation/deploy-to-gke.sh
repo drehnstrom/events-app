@@ -28,3 +28,9 @@ sleep 1m
 # Once the database is installed, then apply all the Kubernetes configuration
 echo "Deploying application..."
 kubectl apply -f ../kubernetes-configurations/
+
+# Give the app a chance to start to deploy
+echo "Will sleep for a minute to let the application start..."
+sleep 1m
+
+kubetctl get services
