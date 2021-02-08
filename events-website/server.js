@@ -3,6 +3,7 @@
 console.log(`process.env.SERVER = ${process.env.SERVER}`);
 // get the environment variable, but default to localhost:8082 if its not set
 const SERVER = process.env.SERVER ? process.env.SERVER : "http://localhost:8082";
+const BUILDTIME = process.env.BUILDTIME ? process.env.BUILDTIME : "00-00-00";
 
 // express is a nodejs web server
 // https://www.npmjs.com/package/express
@@ -71,7 +72,8 @@ app.get('/', (req, res) => {
                         // {{body}} in the layout - the code
                         // in here inserts values from the JSON
                         // received from the server
-                        events: body.events
+                        events: body.events,
+                        buildtime: BUILDTIME
                     }); // pass the data from the server to the template
             }
         });

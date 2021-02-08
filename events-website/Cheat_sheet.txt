@@ -1,6 +1,6 @@
 
 # build Docker Image
-docker build -t drehnstrom/events-web:v1.0 .
+docker build -t drehnstrom/events-web:v1.0 --build-arg buildtime="$(date)" .
 
 # Run Docker image to test
 docker run --name events-web -d -p 8080:8080 drehnstrom/events-web:v1.0

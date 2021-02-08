@@ -1,6 +1,9 @@
 # Use Google base image for NodeJS
 FROM launcher.gcr.io/google/nodejs
 
+ARG buildtime
+ENV BUILDTIME $buildtime
+
 # Copy application code.
 COPY . /app/
 
