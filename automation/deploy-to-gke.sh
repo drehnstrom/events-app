@@ -1,3 +1,10 @@
+# You need to already have a project created. Make sure the project
+# you want to deploy to is set as the default for the gcloud CLI. 
+# You could also edit the script and add the --project parameter to 
+# each gcloud command. 
+
+# Enable the required Cloud Services
+gcloud services enable compute.googleapis.com container.googleapis.com
 # Create the Cluster. Make sure you have a default Project Set.
 gcloud container clusters create events-cluster --zone us-central1-c
 
