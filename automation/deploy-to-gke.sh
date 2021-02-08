@@ -33,6 +33,6 @@ kubectl apply -f ../kubernetes-configurations/
 echo "Will sleep for a minute to let the application start..."
 sleep 1m
 
-kubetctl get services
+kubectl get services
 
 echo "If the public IPs are still pending, wait a minute and run the previous command (kubectl get services) again. "
