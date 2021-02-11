@@ -2,6 +2,15 @@
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm install database-server bitnami/mariadb
 
+# Uninstall the database
+helm uninstall database-server
+kubectl delete persistentvolumeclaim data-database-server-mariadb-0
+
+
+
+
+
+
 Services:
 
   echo Primary: database-server-mariadb.default.svc.cluster.local:3306
