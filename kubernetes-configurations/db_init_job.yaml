@@ -19,7 +19,5 @@ spec:
             secretKeyRef:
               name: database-server-mariadb
               key: mariadb-root-password
-        - name: DBDATABASE
-          value: "events_db" 
       restartPolicy: Never
   backoffLimit: 4

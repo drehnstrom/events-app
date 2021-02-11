@@ -47,14 +47,12 @@ function init_database() {
                             connection.query(add_record_sql, function (err, result) {
                                 console.log("Record added");
                                 succeeded = true;
-
                             });
                         });
                     });
                 });
             });
         }
-
     });
 }
 
@@ -70,12 +68,11 @@ let sleep_time = 1;
 async function start() {
     while (!succeeded && tries < 10) {
         tries++;
+        init_database();
         console.log(sleep_time);
         await sleep(sleep_time * 1000);
-        init_database();
-        sleep_time >= 256 ? sleep_time = sleep_time : sleep_time *= 2
+        sleep_time >= 64 ? sleep_time = sleep_time : sleep_time *= 2
         console.log(new Date().toLocaleTimeString());
-        
     }
     console.log("Exiting");
     process.exit();
