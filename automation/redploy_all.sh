@@ -9,7 +9,7 @@ docker push drehnstrom/events-api:v1.0
 docker build -t drehnstrom/events-web:v1.0 --build-arg buildtime="$(date)" ../events-website
 docker push drehnstrom/events-web:v1.0
 
-# Recreate Website Docker Containers
+# Recreate DV Initializer Docker Containers
 docker build -t drehnstrom/events-job:v1.0 ../database-initializer
 docker push drehnstrom/events-job:v1.0
 
