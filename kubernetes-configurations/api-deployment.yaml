@@ -31,5 +31,11 @@ spec:
               key: mariadb-root-password
         - name: DBDATABASE
           value: "events_db"  
-        resources: {}
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "0.1"
+          limits:
+            memory: "256Mi"
+            cpu: "0.2"
 status: {}
