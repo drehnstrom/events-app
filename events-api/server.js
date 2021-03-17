@@ -19,7 +19,7 @@ const mysql = require('mysql');
 
 const HOST = process.env.DBHOST ? process.env.DBHOST : "127.0.0.1";
 const USER = process.env.DBUSER ? process.env.DBUSER : "root";
-const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "Letmein!";
+const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "letmein!";
 const DATABASE = process.env.DBDATABASE ? process.env.DBDATABASE : "events_db";
 
 const connection = mysql.createConnection({

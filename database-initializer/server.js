@@ -20,7 +20,7 @@ VALUES ('Pet Show', 'June 6 at Noon',
 function init_database() {
     const HOST = process.env.DBHOST ? process.env.DBHOST : "127.0.0.1";
     const USER = process.env.DBUSER ? process.env.DBUSER : "root";
-    const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "Letmein!";
+    const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "letmein!";
     const connection = mysql.createConnection({
         host: HOST,
         user: USER,
