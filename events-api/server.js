@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
 
 // version endpoint to provide easy convient method to demonstrating tests pass/fail
 app.get('/version', (req, res) => {
-    res.json({ version: '1.0.2' });
+    res.json({ version: '1.0.3' });
 });
 
 app.get('/events', (req, res) => {
