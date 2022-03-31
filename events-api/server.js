@@ -22,6 +22,16 @@ const USER = process.env.DBUSER ? process.env.DBUSER : "root";
 const PASSWORD = process.env.DBPASSWORD ? process.env.DBPASSWORD : "letmein!";
 const DATABASE = process.env.DBDATABASE ? process.env.DBDATABASE : "events_db";
 
+function getConntection(){
+    var connection = mysql.createConnection({
+        host: HOST,
+        user: USER,
+        password: PASSWORD,
+        database: DATABASE
+    });
+    return connection;
+
+}
 const connection = mysql.createConnection({
     host: HOST,
     user: USER,
@@ -51,6 +61,7 @@ app.get('/version', (req, res) => {
 
 app.get('/events', (req, res) => {
     const sql = 'SELECT id, title, event_time, description, location, likes, datetime_added FROM events;'
+    var connection = getConntection();
     connection.query(sql, function (err, result, fields) {
         // if any error while executing above query, throw error
         if (err) {
@@ -74,6 +85,8 @@ app.get('/events', (req, res) => {
                 };
                 dbEvents.events.push(ev);
             });
+            connection.destroy();
+            console.log("Events return, connection destroyed")
             res.json(dbEvents);
         }
     });
@@ -93,6 +106,7 @@ app.post('/events', (req, res) => {
     }
     const sql = 'INSERT INTO events (title, event_time, description, location) VALUES (?,?,?,?);';
     const values = [ev.title, ev.event_time, ev.description, ev.location];
+    var connection = getConntection();
     connection.query(sql, values, (err, results, fields) => {
         if (err) {
             console.error(err.message);
@@ -103,6 +117,7 @@ app.post('/events', (req, res) => {
         else {
             // get inserted id
             console.log('Added Event Id:' + results.insertId);
+            connection.destroy();
             res.json(results.insertId);
         }
     });
@@ -117,10 +132,13 @@ app.get('/events/:id', (req, res) => {
     const get_event_sql = `SELECT id, title, event_time, description, location, likes, datetime_added FROM events WHERE id = ?;`;
 
     if (req.query.action == 'like') {
+        var connection = getConntection();
         connection.query(get_likes_sql, values, function (err, result, fields) {
             const new_likes = result[0].likes + 1;
             connection.query(update_sql, [new_likes, req.params.id], function (err, result, fields) {
                 connection.query(get_event_sql, values, function (err, result, fields) {
+                    connection.destroy();
+                    console.log("Like Added, connection destroyed")
                     result.length ? res.status(200).json(result[0])
                         : res.status(404).send("Not Found");
                 });
@@ -128,7 +146,10 @@ app.get('/events/:id', (req, res) => {
         });
     }
     else{
+        var connection = getConntection();
         connection.query(get_event_sql, values, function (err, result, fields) {
+            connection.destroy();
+            console.log("One event returned, connection destroyed")
             result.length ? res.status(200).json(result[0])
                 : res.status(404).send("Not Found");
         });

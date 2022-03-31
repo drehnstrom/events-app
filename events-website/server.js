@@ -28,7 +28,7 @@ const app = express();
 
 // set up handlbars as the templating engine
 app.set('view engine', 'hbs');
-app.engine('hbs', hbs({
+app.engine('hbs', hbs.engine({
     extname: 'hbs',
     defaultView: 'default'
 }));
