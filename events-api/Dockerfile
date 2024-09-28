@@ -1,5 +1,5 @@
 # Use Google base image for NodeJS
-FROM launcher.gcr.io/google/nodejs
+FROM node:14-alpine
 
 # Copy application code.
 COPY . /app/
