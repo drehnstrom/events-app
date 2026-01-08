@@ -1,17 +1,12 @@
 'use strict';
 
 console.log(`process.env.SERVER = ${process.env.SERVER}`);
-// get the environment variable, but default to localhost:8082 if its not set
-const SERVER = process.env.SERVER ? process.env.SERVER : "http://localhost:8082";
-const BUILDTIME = process.env.BUILDTIME ? process.env.BUILDTIME : "00-00-00";
-
 // express is a nodejs web server
 // https://www.npmjs.com/package/express
 const express = require('express');
 
-// converts content in the request into parameter req.body
-// https://www.npmjs.com/package/body-parser
-const bodyParser = require('body-parser');
+// express.json() is built into Express 4.16+
+// https://expressjs.com/en/api/express.html#express.json
 
 // express-handlebars is a templating library 
 // https://www.npmjs.com/package/express-handlebars
@@ -19,125 +14,108 @@ const bodyParser = require('body-parser');
 // data is inserted into a template inside {{ }}
 const hbs = require('express-handlebars');
 
-// request is used to make REST calls to the backend microservice
-// details here: https://www.npmjs.com/package/request
-var request = require('request');
+// axios is used to make REST calls to the backend microservice
+// https://www.npmjs.com/package/axios
+const axios = require('axios');
 
 // create the server
 const app = express();
 
-// set up handlbars as the templating engine
+// set up handlebars as the templating engine
 app.set('view engine', 'hbs');
 app.engine('hbs', hbs.engine({
     extname: 'hbs',
     defaultView: 'default'
 }));
 
-// set up the parser to get the contents of data from html forms 
-// this would be used in a POST to the server as follows:
-// app.post('/route', urlencodedParser, (req, res) => {}
-const urlencodedParser = bodyParser.urlencoded({ extended: false });
+// Use built-in Express middleware for parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
+// Get environment variables
+const SERVER = process.env.SERVER ? process.env.SERVER : "http://localhost:8082";
+const BUILDTIME = process.env.BUILDTIME ? process.env.BUILDTIME : "00-00-00";
 
 
 // defines a route that receives the request to /
-app.get('/', (req, res) => {
-    // make a request to the backend microservice using the request package
-    // the URL for the backend service should be set in configuration 
-    // using an environment variable. Here, the variable is passed 
-    // to npm start inside package.json:
-    //  "start": "SERVER=http://localhost:8082 node server.js",
-    request.get(  // first argument: url + return format
-        {
-            url: SERVER + '/events',  // the microservice end point for events
-            json: true  // response from server will be json format
-        }, // second argument: function with three args,
-        // runs when server response received
-        // body hold the return from the server
-        (error, response, body) => {
-            if (error) {
-                console.log('error:', error); // Print the error if one occurred
-                res.render('error_message',
-                    {
-                        layout: 'default',  //the outer html page
-                        error: error // pass the data from the server to the template
-                    });
-            }
-            else {
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                console.log(body); // print the return from the server microservice
-                res.render('home',
-                    {
-                        layout: 'default',  //the outer html page
-                        template: 'index-template', // the partial view inserted into 
-                        // {{body}} in the layout - the code
-                        // in here inserts values from the JSON
-                        // received from the server
-                        events: body.events,
-                        buildtime: BUILDTIME
-                    }); // pass the data from the server to the template
-            }
-        });
-
+app.get('/', async (req, res) => {
+    try {
+        // make a request to the backend microservice using axios
+        // the URL for the backend service should be set in configuration 
+        // using an environment variable
+        const response = await axios.get(SERVER + '/events');
+        const body = response.data;
+        
+        console.log('statusCode:', response.status); // Print the response status code
+        console.log(body); // print the return from the server microservice
+        
+        res.render('home',
+            {
+                layout: 'default',  //the outer html page
+                template: 'index-template', // the partial view inserted into 
+                // {{body}} in the layout - the code
+                // in here inserts values from the JSON
+                // received from the server
+                events: body.events,
+                buildtime: BUILDTIME
+            }); // pass the data from the server to the template
+    } catch (error) {
+        console.log('error:', error.message); // Print the error if one occurred
+        res.render('error_message',
+            {
+                layout: 'default',  //the outer html page
+                error: error // pass the data from the server to the template
+            });
+    }
 });
 
 
-// defines a route that receives the post request to /event
-app.post('/events',
-    urlencodedParser, // second argument - how to parse the uploaded content
-    // into req.body
-    (req, res) => {
-        // make a request to the backend microservice using the request package
+// defines a route that receives the post request to /events
+app.post('/events', async (req, res) => {
+    try {
+        // make a request to the backend microservice using axios
         // the URL for the backend service should be set in configuration 
-        // using an environment variable. Here, the variable is passed 
-        // to npm start inside package.json:
-        //  "start": "SERVER=http://localhost:8082 node server.js",
-        request.post(  // first argument: url + data + formats
+        // using an environment variable
+        const response = await axios.post(
+            SERVER + '/events',  // the microservice end point for adding an event
+            req.body,  // content of the form
             {
-                url: SERVER + '/events',  // the microservice end point for adding an event
-                body: req.body,  // content of the form
-                headers: { // uploading json
+                headers: {
                     "Content-Type": "application/json"
-                },
-                json: true // response from server will be json format
-            },
-            (error, response, body) => {  // third argument: function with three args,
-                // runs when server response received
-                // body hold the return from the server
-                console.log('error:', error); // Print the error if one occurred
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                console.log(body); // print the return from the server microservice
-                res.redirect("/"); // redirect to the home page
-            });
-
-    });
+                }
+            }
+        );
+        
+        console.log('statusCode:', response.status);
+        console.log(response.data); // print the return from the server microservice
+        res.redirect("/"); // redirect to the home page
+    } catch (error) {
+        console.log('error:', error.message);
+        res.redirect("/");
+    }
+});
 
 // create other get and post methods here - version, login,  etc
 
-app.get('/like/:id', (req, res) => {
+app.get('/like/:id', async (req, res) => {
     const id = req.params.id;
-    request.get(  // first argument: url + return format
-        {
-            url: SERVER + '/events/' + id + '?action=like',  // the microservice end point for events
-            json: true  // response from server will be json format
-        }, // second argument: function with three args,
-        // runs when server response received
-        // body hold the return from the server
-        (error, response, body) => {
-            if (error) {
-                console.log('error:', error); // Print the error if one occurred
-                res.render('error_message',
-                    {
-                        layout: 'default',  //the outer html page
-                        error: error // pass the data from the server to the template
-                    });
-            }
-            else {
-                console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                console.log(body); // print the return from the server microservice
-                res.json(body); // pass the data from the server to the template
-            }
-        }
-    );
+    try {
+        // make a request to the backend microservice using axios
+        const response = await axios.get(
+            SERVER + '/events/' + id + '?action=like'  // the microservice end point for events
+        );
+        
+        console.log('statusCode:', response.status);
+        console.log(response.data); // print the return from the server microservice
+        res.json(response.data); // pass the data from the server to the template
+    } catch (error) {
+        console.log('error:', error.message); // Print the error if one occurred
+        res.render('error_message',
+            {
+                layout: 'default',  //the outer html page
+                error: error // pass the data from the server to the template
+            });
+    }
 });
 
 

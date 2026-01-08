@@ -4,15 +4,12 @@
 // https://www.npmjs.com/package/express
 const express = require('express');
 
-// converts content in the request into parameter req.body
-// https://www.npmjs.com/package/body-parser
-const bodyParser = require('body-parser');
-
 // create the server
 const app = express();
 
 // the backend server will parse json, not a form request
-app.use(bodyParser.json());
+// Express 4.16+ has built-in body parsing middleware
+app.use(express.json());
 
 // Going to connect to MySQL database
 const mysql = require('mysql');

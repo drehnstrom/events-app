@@ -16,10 +16,18 @@ gcloud container clusters create events-cluster --zone us-central1-c
 # Connect to your Cluster. This set the kubectl context
 gcloud container clusters get-credentials events-cluster --zone us-central1-c
 
+# Create the Kubernetes namespace
+echo "Creating Kubernetes namespace..."
+kubectl create namespace events-app
+kubectl config set-context --current --namespace=events-app
+
 # Need the database installed first using Helm
 echo "Deploying Database..."
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install database-server bitnami/mariadb
+helm install database-server bitnami/mariadb \
+  --set auth.rootPassword=letmein! \
+  --set primary.persistence.enabled=false \
+  -n events-app
 
 # Give the database a chance to start
 echo "Will sleep for a minute to let the database start..."
@@ -27,12 +35,12 @@ sleep 1m
 
 # Once the database is installed, then apply all the Kubernetes configuration
 echo "Deploying application..."
-kubectl apply -f ../kubernetes-configurations/
+kubectl apply -f ../kubernetes-configurations/ -n events-app
 
 # Give the app a chance to start to deploy
 echo "Will sleep for a couple minutes to let the application start..."
 sleep 3m
 
-kubectl get services
+kubectl get services -n events-app
 
-echo "If the public IPs are still pending, wait a minute and run the command kubectl get services again. "
+echo "If the public IPs are still pending, wait a minute and run the command kubectl get services -n events-app again. "

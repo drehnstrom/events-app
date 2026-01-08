@@ -1,17 +1,24 @@
-# Use Google base image for NodeJS
-FROM node:14-alpine
+# Use official Node.js LTS image
+FROM node:20-alpine
 
 ARG buildtime
 ENV BUILDTIME $buildtime
 
-# Copy application code.
-COPY . /app/
-
-# Change the working directory
+# Set working directory
 WORKDIR /app
 
-# Install dependencies.
-RUN npm install
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (ci is more reliable than install for Docker)
+RUN npm ci --omit=dev
+
+# Copy application code
+COPY . .
+
+# Run as non-root user
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+USER nodejs
 
 # Start the Express app
 CMD ["node", "server.js"]

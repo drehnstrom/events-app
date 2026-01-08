@@ -16,12 +16,15 @@ spec:
         app: events-api
     spec:
       containers:
-      - image: drehnstrom/events-api:v1.0
+      - image: drehnstrom/events-api:v2.0
         name: events-api
         imagePullPolicy: "Always"
+        ports:
+        - containerPort: 8082
+          name: http
         env:
         - name: DBHOST
-          value: "database-server-mariadb.default.svc.cluster.local"
+          value: "database-server-mariadb.events-app.svc.cluster.local"
         - name: DBUSER
           value: "root"
         - name: DBPASSWORD
@@ -38,4 +41,20 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "0.2"
+        livenessProbe:
+          httpGet:
+            path: /version
+            port: 8082
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8082
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
 status: {}

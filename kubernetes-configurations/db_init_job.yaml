@@ -6,12 +6,12 @@ spec:
   template:
     spec:
       containers:
-      - image: drehnstrom/events-job:v1.0
+      - image: drehnstrom/events-job:v2.0
         name: db-init-job
         imagePullPolicy: "Always"
         env:
         - name: DBHOST
-          value: "database-server-mariadb.default.svc.cluster.local"
+          value: "database-server-mariadb.events-app.svc.cluster.local"
         - name: DBUSER
           value: "root"
         - name: DBPASSWORD

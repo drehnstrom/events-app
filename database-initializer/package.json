@@ -14,9 +14,9 @@
     "mysql": "^2.18.1"
   },
   "devDependencies": {
-    "chai": "^4.3.0",
-    "mocha": "^6.2.3",
-    "nyc": "^14.1.1",
-    "supertest": "^4.0.2"
+    "chai": "^4.3.10",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "supertest": "^6.3.3"
   }
 }

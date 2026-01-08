@@ -16,9 +16,12 @@ spec:
         app: events-web
     spec:
       containers:
-      - image: drehnstrom/events-web:v1.0
+      - image: drehnstrom/events-web:v2.0
         name: events-web
         imagePullPolicy: "Always"
+        ports:
+        - containerPort: 8080
+          name: http
         env:
         - name: SERVER
           value: "http://events-api"
@@ -29,4 +32,20 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "0.2"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 5
+          failureThreshold: 2
 status: {}
