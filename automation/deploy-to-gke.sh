@@ -3,6 +3,10 @@
 # You could also edit the script and add the --project parameter to 
 # each gcloud command. 
 
+# Generate unique cluster name with random suffix
+RANDOM_SUFFIX=$(echo $RANDOM | md5sum | head -c 6)
+CLUSTER_NAME="events-cluster-${RANDOM_SUFFIX}"
+
 # Enable the required Cloud Services
 echo "Enabling Compute Engine and Kubernetes APIs."
 echo "This will take a couple minutes..."
@@ -11,7 +15,7 @@ gcloud services enable compute.googleapis.com container.googleapis.com
 
 # Create the Cluster. Make sure you have a default Project Set.
 echo "Creating Kubernetes cluster..."
-gcloud container clusters create events-cluster --zone us-central1-c
+gcloud container clusters create ${CLUSTER_NAME} --zone us-central1-c
 
 # Connect to your Cluster. This set the kubectl context
 gcloud container clusters get-credentials events-cluster --zone us-central1-c
