@@ -1,107 +1,24 @@
 ---
-# Network Policy: Restrict traffic to API to only from Web UI pods
-# This demonstrates network-level access control
-# The API will only accept traffic from pods running with the events-web service account
+# Network Policy: Only allow Web pods to communicate with API
+# This is the simplest network policy: restrict API ingress to only Web pods
+# All other traffic (health checks, external, DNS, etc.) remains unrestricted
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: events-api-allow-from-web
+  name: api-allow-from-web-only
   namespace: events-app
-  labels:
-    app: events-api
 spec:
-  # Apply this policy to API pods
   podSelector:
     matchLabels:
       app: events-api
-  
-  # Only allow ingress traffic (incoming connections)
   policyTypes:
   - Ingress
-  
-  # Define what traffic is allowed
   ingress:
-  # Allow traffic from pods with the events-web service account
   - from:
     - podSelector:
         matchLabels:
-          # This matches pods that have serviceAccountName: events-web
-          # Note: Pods don't automatically get labeled with their service account name
-          # See network-policy-readme.md for how to ensure this labeling works
           app: events-web
     ports:
     - protocol: TCP
       port: 8082
 
----
-# Network Policy: Allow API to communicate with database
-# This allows the API to make outbound connections to the database
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: events-api-allow-to-database
-  namespace: events-app
-  labels:
-    app: events-api
-spec:
-  # Apply this policy to API pods
-  podSelector:
-    matchLabels:
-      app: events-api
-  
-  # Only allow egress traffic (outgoing connections)
-  policyTypes:
-  - Egress
-  
-  # Define what outbound traffic is allowed
-  egress:
-  # Allow traffic to database pods (MariaDB)
-  - to:
-    - podSelector:
-        matchLabels:
-          app.kubernetes.io/name: mariadb
-    ports:
-    - protocol: TCP
-      port: 3306
-  # Allow DNS queries (required for service discovery)
-  - to:
-    - namespaceSelector: {}
-    ports:
-    - protocol: UDP
-      port: 53
-
----
-# Network Policy: Allow Web to communicate outbound to API and DNS
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: events-web-allow-to-api
-  namespace: events-app
-  labels:
-    app: events-web
-spec:
-  # Apply this policy to Web pods
-  podSelector:
-    matchLabels:
-      app: events-web
-  
-  # Only allow egress traffic
-  policyTypes:
-  - Egress
-  
-  # Define what outbound traffic is allowed
-  egress:
-  # Allow traffic to API pods
-  - to:
-    - podSelector:
-        matchLabels:
-          app: events-api
-    ports:
-    - protocol: TCP
-      port: 8082
-  # Allow DNS queries (required for service discovery)
-  - to:
-    - namespaceSelector: {}
-    ports:
-    - protocol: UDP
-      port: 53
