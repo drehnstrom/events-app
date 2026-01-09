@@ -15,6 +15,7 @@ spec:
       labels:
         app: events-api
     spec:
+      serviceAccountName: events-api
       containers:
       - image: drehnstrom/events-api:v2.0
         name: events-api

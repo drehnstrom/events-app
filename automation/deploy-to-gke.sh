@@ -15,7 +15,7 @@ gcloud services enable compute.googleapis.com container.googleapis.com
 
 # Create the Cluster. Make sure you have a default Project Set.
 echo "Creating Kubernetes cluster..."
-gcloud container clusters create ${CLUSTER_NAME} --zone us-central1-c
+gcloud container clusters create ${CLUSTER_NAME} --zone us-central1-c --enable-network-policy
 
 # Connect to your Cluster. This set the kubectl context
 gcloud container clusters get-credentials events-cluster --zone us-central1-c

@@ -1,0 +1,35 @@
+---
+# Bind the events-api role to the events-api service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: events-api-rolebinding
+  namespace: events-app
+  labels:
+    app: events-api
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: events-api-role
+subjects:
+- kind: ServiceAccount
+  name: events-api
+  namespace: events-app
+
+---
+# Bind the events-web role to the events-web service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: events-web-rolebinding
+  namespace: events-app
+  labels:
+    app: events-web
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: events-web-role
+subjects:
+- kind: ServiceAccount
+  name: events-web
+  namespace: events-app

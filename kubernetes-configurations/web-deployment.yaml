@@ -15,6 +15,7 @@ spec:
       labels:
         app: events-web
     spec:
+      serviceAccountName: events-web
       containers:
       - image: drehnstrom/events-web:v2.0
         name: events-web

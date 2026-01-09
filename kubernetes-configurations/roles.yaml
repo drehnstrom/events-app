@@ -1,0 +1,34 @@
+---
+# Role for the Events API
+# Grants minimal permissions needed for the API to function
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: events-api-role
+  namespace: events-app
+  labels:
+    app: events-api
+rules:
+# Allow reading the database secret (for credentials)
+- apiGroups: [""]
+  resources: ["secrets"]
+  resourceNames: ["database-server-mariadb"]
+  verbs: ["get"]
+
+---
+# Role for the Events Web UI
+# Grants minimal permissions needed for the web UI to function
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: events-web-role
+  namespace: events-app
+  labels:
+    app: events-web
+rules:
+# Web UI typically needs fewer permissions
+# In this case, it doesn't need direct access to secrets
+# (the API calls are handled through service-to-service communication)
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list"]
